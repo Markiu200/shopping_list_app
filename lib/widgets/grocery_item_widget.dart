@@ -16,6 +16,8 @@ class GroceryItemWidget extends StatelessWidget {
           decoration: BoxDecoration(color: item.category.color),
         ),
       ),
+      title: Text(item.name),
+      trailing: Text("${item.quantity}"),
     );
   }
 }
