@@ -20,7 +20,10 @@ class MyApp extends StatelessWidget {
         ),
         scaffoldBackgroundColor: const Color.fromARGB(255, 50, 58, 60),
       ),
-      home: Scaffold(body: GroceryScreen()),
+      home: Scaffold(
+        appBar: AppBar(title: const Text("Your Groceries")),
+        body: GroceryScreen(),
+      ),
     );
   }
 }
