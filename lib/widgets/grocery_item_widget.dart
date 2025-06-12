@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:shopping_list_app/models/grocery_item.dart';
-import 'package:shopping_list_app/data/categories.dart';
 
 class GroceryItemWidget extends StatelessWidget {
   const GroceryItemWidget(this.item, {super.key});
@@ -14,7 +13,7 @@ class GroceryItemWidget extends StatelessWidget {
         width: 16,
         height: 16,
         child: DecoratedBox(
-          decoration: BoxDecoration(color: categories[item.category]!.color),
+          decoration: BoxDecoration(color: item.category.color),
         ),
       ),
     );
