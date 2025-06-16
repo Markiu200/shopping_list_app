@@ -11,6 +11,18 @@ class NewItem extends StatefulWidget {
 }
 
 class _NewItemState extends State<NewItem> {
+  // To get access to the form.
+  // This also ensures that when build() is exexuted again, form keeps it's
+  // internal state.
+  // Practically used only for Forms.
+  final _formKey = GlobalKey<FormState>();
+
+  void _saveItem() {
+    // To run _saveItem, form must have been created and linked by key: property,
+    // thus "!".
+    _formKey.currentState!.validate();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,12 +30,13 @@ class _NewItemState extends State<NewItem> {
       body: Padding(
         padding: const EdgeInsets.all(12),
         child: Form(
+          key: _formKey,
           child: Column(
             children: [
               TextFormField(
                 maxLength: 50,
                 decoration: const InputDecoration(label: Text("Name")),
-                // This will run at specified explicit trigger
+                // This will run at specified explicit trigger, here via _formKey.
                 validator: (value) {
                   // return null if everything is ok, otherwise return String
                   if (value == null ||
@@ -87,7 +100,7 @@ class _NewItemState extends State<NewItem> {
                 children: [
                   TextButton(onPressed: () {}, child: const Text('Reset')),
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: _saveItem,
                     child: const Text('Add Item'),
                   ),
                 ],
