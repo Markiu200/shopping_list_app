@@ -13,7 +13,7 @@ class GroceryList extends StatefulWidget {
 }
 
 class _GroceryListState extends State<GroceryList> {
-  final List<GroceryItem> _groceryItems = [];
+  List<GroceryItem> _groceryItems = [];
 
   @override
   void initState() {
@@ -37,7 +37,7 @@ class _GroceryListState extends State<GroceryList> {
     // Map<String, Map<String, dynamic>> is bit too much for Flutter (too specific),
     // thus replacing with just Map<String, dynamic>
     final Map<String, dynamic> listData = json.decode(response.body);
-    final List<GroceryItem> _loadedItems = [];
+    final List<GroceryItem> loadedItems = [];
     for (final item in listData.entries) {
       final category =
           categories.entries
@@ -45,7 +45,7 @@ class _GroceryListState extends State<GroceryList> {
                 (catItem) => catItem.value.name == item.value['category'],
               )
               .value;
-      _loadedItems.add(
+      loadedItems.add(
         GroceryItem(
           id: item.key,
           name: item.value['name'],
@@ -54,6 +54,9 @@ class _GroceryListState extends State<GroceryList> {
         ),
       );
     }
+    setState(() {
+      _groceryItems = loadedItems;
+    });
   }
 
   void _addItem() async {
