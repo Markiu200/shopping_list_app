@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shopping_list_app/data/categories.dart';
 import 'package:shopping_list_app/models/category.dart';
-import 'package:shopping_list_app/models/grocery_item.dart';
 import 'package:http/http.dart' as http;
 
 class NewItem extends StatefulWidget {
@@ -25,7 +24,7 @@ class _NewItemState extends State<NewItem> {
   int _enteredQuantity = 0;
   var _selectedCategory = categories[Categories.vegetables]!;
 
-  void _saveItem() {
+  void _saveItem() async {
     // To run _saveItem, form must have been created and linked by key: property,
     // thus "!".
     if (_formKey.currentState!.validate()) {
@@ -34,7 +33,8 @@ class _NewItemState extends State<NewItem> {
         'flutter-prep-f6013-default-rtdb.europe-west1.firebasedatabase.app',
         'shopping-list.json',
       );
-      http.post(
+      // In this method code stops here and awaits for http request answer
+      final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
@@ -43,14 +43,24 @@ class _NewItemState extends State<NewItem> {
           'category': _selectedCategory.name,
         }),
       );
-      // Navigator.of(context).pop(
-      //   GroceryItem(
-      //     id: DateTime.now.toString(),
-      //     name: _enteredName,
-      //     quantity: _enteredQuantity,
-      //     category: _selectedCategory,
-      //   ),
-      // );
+      print(response.body);
+      print(response.statusCode);
+
+      // As you can navigate away from current context before post gives a response
+      // adn thus "losing" it in widget tree, we check with this whether context
+      // is still on the screen.
+      if (!context.mounted) {
+        return;
+      } else {
+        Navigator.of(context).pop(
+          // GroceryItem(
+          //   id: DateTime.now.toString(),
+          //   name: _enteredName,
+          //   quantity: _enteredQuantity,
+          //   category: _selectedCategory,
+          // ),
+        );
+      }
     }
   }
 
