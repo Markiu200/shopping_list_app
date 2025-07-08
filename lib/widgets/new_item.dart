@@ -24,12 +24,17 @@ class _NewItemState extends State<NewItem> {
   String _enteredName = "";
   int _enteredQuantity = 0;
   var _selectedCategory = categories[Categories.vegetables]!;
+  var _isSending = false;
 
   void _saveItem() async {
     // To run _saveItem, form must have been created and linked by key: property,
     // thus "!".
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
+
+      setState(() {
+        _isSending = true;
+      });
       final url = Uri.https(
         'flutter-prep-f6013-default-rtdb.europe-west1.firebasedatabase.app',
         'shopping-list.json',
@@ -157,14 +162,25 @@ class _NewItemState extends State<NewItem> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
-                    onPressed: () {
-                      _formKey.currentState!.reset();
-                    },
+                    // Passing null as function makes button disabled
+                    onPressed:
+                        _isSending
+                            ? null
+                            : () {
+                              _formKey.currentState!.reset();
+                            },
                     child: const Text('Reset'),
                   ),
                   ElevatedButton(
-                    onPressed: _saveItem,
-                    child: const Text('Add Item'),
+                    onPressed: _isSending ? null : _saveItem,
+                    child:
+                        _isSending
+                            ? const SizedBox(
+                              height: 16,
+                              width: 16,
+                              child: CircularProgressIndicator(),
+                            )
+                            : const Text('Add Item'),
                   ),
                 ],
               ),
