@@ -28,53 +28,60 @@ class _GroceryListState extends State<GroceryList> {
       'flutter-prep-f6013-default-rtdb.europe-west1.firebasedatabase.app',
       'shopping-list.json',
     );
-    final response = await http.get(url);
+    // try http.get - instead of http replies, it may just throw an error if for
+    // example wrong URL is passed or there is no Internet connection.
+    try {
+      final response = await http.get(url);
+      if (response.statusCode >= 400) {
+        setState(() {
+          _error = 'Failed to fetch data. Please try again later.';
+        });
+      }
 
-    if (response.statusCode >= 400) {
+      // response:
+      // {
+      // "-OT7Y6-LDjFqhFLwCqyc":{"category":"Vegetables","name":"fhgh","quantity":5},
+      // "-OUd4y3Mn0qJrNCddnBP":{"category":"Dairy","name":"jeffs","quantity":1},
+      // "-OUd9pC70eJtnQHJx3qM":{"category":"Fruit","name":"bananas","quantity":12}
+      // }
+
+      // What is returned for empty databases is backend specific - Firebase wii
+      // return String "null".
+      if (response.body == 'null') {
+        setState(() {
+          _isLoading = false;
+        });
+        return;
+      }
+      // Map<String, Map<String, dynamic>> is bit too much for Flutter (too specific),
+      // thus replacing with just Map<String, dynamic>
+      final Map<String, dynamic> listData = json.decode(response.body);
+      final List<GroceryItem> loadedItems = [];
+      for (final item in listData.entries) {
+        final category =
+            categories.entries
+                .firstWhere(
+                  (catItem) => catItem.value.name == item.value['category'],
+                )
+                .value;
+        loadedItems.add(
+          GroceryItem(
+            id: item.key,
+            name: item.value['name'],
+            quantity: item.value['quantity'],
+            category: category,
+          ),
+        );
+      }
       setState(() {
-        _error = 'Failed to fetch data. Please try again later.';
-      });
-    }
-
-    // response:
-    // {
-    // "-OT7Y6-LDjFqhFLwCqyc":{"category":"Vegetables","name":"fhgh","quantity":5},
-    // "-OUd4y3Mn0qJrNCddnBP":{"category":"Dairy","name":"jeffs","quantity":1},
-    // "-OUd9pC70eJtnQHJx3qM":{"category":"Fruit","name":"bananas","quantity":12}
-    // }
-
-    // What is returned for empty databases is backend specific - Firebase wii
-    // return String "null".
-    if (response.body == 'null') {
-      setState(() {
+        _groceryItems = loadedItems;
         _isLoading = false;
       });
-      return;
+    } catch (error) {
+      setState(() {
+        _error = 'Something went wrong!. Please try again later.';
+      });
     }
-    // Map<String, Map<String, dynamic>> is bit too much for Flutter (too specific),
-    // thus replacing with just Map<String, dynamic>
-    final Map<String, dynamic> listData = json.decode(response.body);
-    final List<GroceryItem> loadedItems = [];
-    for (final item in listData.entries) {
-      final category =
-          categories.entries
-              .firstWhere(
-                (catItem) => catItem.value.name == item.value['category'],
-              )
-              .value;
-      loadedItems.add(
-        GroceryItem(
-          id: item.key,
-          name: item.value['name'],
-          quantity: item.value['quantity'],
-          category: category,
-        ),
-      );
-    }
-    setState(() {
-      _groceryItems = loadedItems;
-      _isLoading = false;
-    });
   }
 
   void _addItem() async {
