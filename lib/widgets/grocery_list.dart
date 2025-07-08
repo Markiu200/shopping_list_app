@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:shopping_list_app/data/categories.dart';
 import 'package:shopping_list_app/models/grocery_item.dart';
 import 'package:shopping_list_app/widgets/new_item.dart';
 import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class GroceryList extends StatefulWidget {
   const GroceryList({super.key});
@@ -25,7 +27,33 @@ class _GroceryListState extends State<GroceryList> {
       'shopping-list.json',
     );
     final response = await http.get(url);
-    print(response.body);
+    // response:
+    // {
+    // "-OT7Y6-LDjFqhFLwCqyc":{"category":"Vegetables","name":"fhgh","quantity":5},
+    // "-OUd4y3Mn0qJrNCddnBP":{"category":"Dairy","name":"jeffs","quantity":1},
+    // "-OUd9pC70eJtnQHJx3qM":{"category":"Fruit","name":"bananas","quantity":12}
+    // }
+    //
+    // Map<String, Map<String, dynamic>> is bit too much for Flutter (too specific),
+    // thus replacing with just Map<String, dynamic>
+    final Map<String, dynamic> listData = json.decode(response.body);
+    final List<GroceryItem> _loadedItems = [];
+    for (final item in listData.entries) {
+      final category =
+          categories.entries
+              .firstWhere(
+                (catItem) => catItem.value.name == item.value['category'],
+              )
+              .value;
+      _loadedItems.add(
+        GroceryItem(
+          id: item.key,
+          name: item.value['name'],
+          quantity: item.value['quantity'],
+          category: category,
+        ),
+      );
+    }
   }
 
   void _addItem() async {
