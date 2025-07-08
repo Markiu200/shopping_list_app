@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:shopping_list_app/data/categories.dart';
 import 'package:shopping_list_app/models/category.dart';
 import 'package:http/http.dart' as http;
+import 'package:shopping_list_app/models/grocery_item.dart';
 
 class NewItem extends StatefulWidget {
   const NewItem({super.key});
@@ -43,9 +44,8 @@ class _NewItemState extends State<NewItem> {
           'category': _selectedCategory.name,
         }),
       );
-      print(response.body);
-      print(response.statusCode);
 
+      final Map<String, dynamic> resData = json.decode(response.body);
       // As you can navigate away from current context before post gives a response
       // adn thus "losing" it in widget tree, we check with this whether context
       // is still on the screen.
@@ -53,12 +53,12 @@ class _NewItemState extends State<NewItem> {
         return;
       } else {
         Navigator.of(context).pop(
-          // GroceryItem(
-          //   id: DateTime.now.toString(),
-          //   name: _enteredName,
-          //   quantity: _enteredQuantity,
-          //   category: _selectedCategory,
-          // ),
+          GroceryItem(
+            id: resData['name'],
+            name: _enteredName,
+            quantity: _enteredQuantity,
+            category: _selectedCategory,
+          ),
         );
       }
     }
