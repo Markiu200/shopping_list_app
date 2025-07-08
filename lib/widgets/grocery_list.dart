@@ -42,7 +42,15 @@ class _GroceryListState extends State<GroceryList> {
     // "-OUd4y3Mn0qJrNCddnBP":{"category":"Dairy","name":"jeffs","quantity":1},
     // "-OUd9pC70eJtnQHJx3qM":{"category":"Fruit","name":"bananas","quantity":12}
     // }
-    //
+
+    // What is returned for empty databases is backend specific - Firebase wii
+    // return String "null".
+    if (response.body == 'null') {
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
     // Map<String, Map<String, dynamic>> is bit too much for Flutter (too specific),
     // thus replacing with just Map<String, dynamic>
     final Map<String, dynamic> listData = json.decode(response.body);
